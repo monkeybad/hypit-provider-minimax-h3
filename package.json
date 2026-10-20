@@ -1,0 +1,58 @@
+{
+  "name": "@monkeybad/provider-minimax-h3",
+  "version": "0.1.0",
+  "description": "Third-party Hypit Provider for a self-hosted MiniMax H3 Open V2 video API.",
+  "private": false,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/monkeybad/hypit-provider-minimax-h3.git"
+  },
+  "homepage": "https://github.com/monkeybad/hypit-provider-minimax-h3#readme",
+  "bugs": {
+    "url": "https://github.com/monkeybad/hypit-provider-minimax-h3/issues"
+  },
+  "keywords": [
+    "hypit",
+    "provider",
+    "minimax",
+    "video-generation"
+  ],
+  "type": "module",
+  "hypit": {
+    "activation": "./dist/activation.js"
+  },
+  "exports": {
+    ".": "./dist/provider.js"
+  },
+  "files": [
+    "dist/activation.js",
+    "dist/activation.d.ts",
+    "dist/provider.js",
+    "dist/provider.d.ts",
+    "README.md",
+    "LICENSE",
+    "SECURITY.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepare": "npm run build",
+    "prepack": "npm run build",
+    "typecheck:test": "tsc -p tsconfig.test.json",
+    "test": "npm run build && npm run typecheck:test && node --import tsx --import ./src/test-bootstrap.ts --test src/provider.test.ts"
+  },
+  "dependencies": {
+    "@hypit/generation": "^0.1.0"
+  },
+  "peerDependencies": {
+    "@hypit/hypit": "^0.3.1",
+    "@hypit/runtime-local": "^0.1.1"
+  },
+  "devDependencies": {
+    "@hypit/hypit": "0.3.1",
+    "@hypit/runtime-local": "0.1.1",
+    "@types/node": "24.10.1",
+    "tsx": "4.21.0",
+    "typescript": "5.9.3"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "format": "hypit.runtime-local@1",
+  "dataRoot": ".hypit/runtimes/local",
+  "credentials": {
+    "local": {
+      "use": "@hypit/credential-store-local"
+    }
+  },
+  "endpoints": {
+    "minimax-h3.selfhosted": {
+      "use": "@monkeybad/provider-minimax-h3",
+      "config": {
+        "protocol": "minimax-h3-open-v2",
+        "baseUrl": "https://app.getcheapvideo.com/api/v1/open",
+        "model": "MiniMax-H3",
+        "apiKey": {
+          "store": "local",
+          "key": "minimax-h3.selfhosted"
+        },
+        "concurrency": 1,
+        "pollIntervalMs": 5000,
+        "maxMediaBytes": 104857600
+      }
+    }
+  },
+  "bindings": {
+    "@hypit/minimax-h3@1#minimax-h3": "minimax-h3.selfhosted"
+  }
+}
