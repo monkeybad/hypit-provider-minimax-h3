@@ -30,14 +30,18 @@ API key is accepted by the deployment.
 
 ## Install
 
-Install the package from public GitHub in the Hypit project that will use it:
+Install both the H3 Model and this Provider from public GitHub/npm in the Hypit project that will
+use it:
 
 ```bash
+npm install @hypit/minimax-h3@^0.2.0
 npm install git+https://github.com/monkeybad/hypit-provider-minimax-h3.git
 ```
 
-The package is built during installation through its `prepare` script. An npm registry release is
-not required for this Git-based installation.
+The Model package supplies the `@hypit/minimax-h3@1#minimax-h3` author/compute contract used by
+Studio and project projection. The Provider package maps that capability to the deployment API and
+is built during installation through its `prepare` script. An npm registry release is not required
+for this Git-based Provider installation.
 
 ## Configure an Endpoint
 

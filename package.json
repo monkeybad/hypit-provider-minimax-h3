@@ -1,6 +1,6 @@
 {
   "name": "@monkeybad/provider-minimax-h3",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Third-party Hypit Provider for a self-hosted MiniMax H3 Open V2 video API.",
   "private": false,
   "license": "MIT",
@@ -46,6 +46,7 @@
   },
   "peerDependencies": {
     "@hypit/hypit": "^0.3.1",
+    "@hypit/minimax-h3": "^0.2.0",
     "@hypit/runtime-local": "^0.1.1"
   },
   "devDependencies": {
