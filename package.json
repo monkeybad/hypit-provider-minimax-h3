@@ -1,6 +1,6 @@
 {
   "name": "@monkeybad/provider-minimax-h3",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Third-party Hypit Provider for a self-hosted MiniMax H3 Open V2 video API.",
   "private": false,
   "license": "MIT",

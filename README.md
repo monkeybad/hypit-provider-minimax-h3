@@ -18,6 +18,7 @@ model access, pricing, data handling and API compatibility.
 - Uploads references, submits an asynchronous generation task, polls it, downloads the result and
   admits it into Hypit's resource system.
 - Preserves a task receipt for continuation and uses a stable idempotency key for submission.
+- Retries transient status-query transport failures without treating the remote task as failed.
 - Supports cancellation and reports late-cancellation states without inventing success.
 - Validates the endpoint, asset URLs and result URLs. Credentials and signed URLs are redacted from
   public failure messages.

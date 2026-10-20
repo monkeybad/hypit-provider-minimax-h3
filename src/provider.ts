@@ -75,6 +75,7 @@ const CANCELLATION_TOO_LATE_CODES = new Set([
   "V2_TASK_ALREADY_CANCELLED",
   "V2_TASK_REVIEW_PENDING",
 ]);
+const MAX_POLL_TRANSPORT_RETRIES = 3;
 
 type MiniMaxModel = keyof typeof MODEL_LIMITS;
 type MediaPortName = keyof typeof MEDIA_PORTS;
@@ -557,14 +558,34 @@ export function createMiniMaxH3Provider(options: MiniMaxH3ProviderOptions) {
     },
 
     async poll(context) {
-      const id = text(object(context.handle, "MiniMax H3 handle").id, "MiniMax H3 task id");
+      const handle = object(context.handle, "MiniMax H3 handle");
+      const id = text(handle.id, "MiniMax H3 task id");
+      const transportRetries = handle.transportRetries ?? 0;
+      assert(typeof transportRetries === "number"
+        && Number.isSafeInteger(transportRetries)
+        && transportRetries >= 0,
+        "MiniMax H3 transportRetries must be a non-negative integer");
       const apiKey = secret(context.credentials);
-      const result = await apiJson(
-        "MiniMax H3 query",
-        `/v2/query/video_generation/${encodeURIComponent(id)}`,
-        apiKey,
-        { method: "GET" },
-      );
+      let result: Awaited<ReturnType<typeof apiJson>>;
+      try {
+        result = await apiJson(
+          "MiniMax H3 query",
+          `/v2/query/video_generation/${encodeURIComponent(id)}`,
+          apiKey,
+          { method: "GET" },
+        );
+      } catch (error) {
+        const retryable = error instanceof Error
+          && error.message === "MiniMax H3 query failed at transport";
+        if (!retryable || transportRetries >= MAX_POLL_TRANSPORT_RETRIES) throw error;
+        const retry = transportRetries + 1;
+        return wakeAfter(
+          { id, transportRetries: retry },
+          pollIntervalMs,
+          Date.now(),
+          { phase: `Retrying query after transport failure (${retry}/${MAX_POLL_TRANSPORT_RETRIES})` },
+        );
+      }
       const task = object(result.body.task, "MiniMax H3 query response task");
       if (task.id !== undefined && task.id !== id) {
         throw new Error("MiniMax H3 query returned a different task id");

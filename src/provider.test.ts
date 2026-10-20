@@ -620,6 +620,48 @@ test("polls queued and running tasks, unwraps body.task, then downloads without 
   assert.equal(new Headers(download?.init?.headers).has("authorization"), false);
 });
 
+test("retries transient query transport failures without failing the task", async () => {
+  let queries = 0;
+  const fakeFetch: typeof globalThis.fetch = async (input) => {
+    const url = String(input);
+    if (url.endsWith("/v2/video_generation")) {
+      return json({ task_id: "task-retry" });
+    }
+    if (url.endsWith("/v2/query/video_generation/task-retry")) {
+      queries += 1;
+      if (queries <= 2) throw new TypeError("fetch failed");
+      return json({
+        task: {
+          id: "task-retry",
+          status: "succeeded",
+          content: { url: VIDEO_URL },
+        },
+      });
+    }
+    throw new Error(`unexpected URL ${url}`);
+  };
+  const { install: open } = install(fakeFetch);
+  const { endpoint } = await open();
+  const value = request({ prompt: ["retry query"], duration: [4], resolution: ["768P"] });
+  const start = await endpoint.start(context(value, new Map()));
+  let handle = start.status === "pending" ? start.handle : undefined;
+  assert(handle !== undefined);
+
+  const firstRetry = await endpoint.poll({ ...context(value, new Map()), handle });
+  assert.equal(firstRetry.status, "pending");
+  handle = firstRetry.status === "pending" ? firstRetry.handle : undefined;
+  assert.deepEqual(handle, { id: "task-retry", transportRetries: 1 });
+
+  const secondRetry = await endpoint.poll({ ...context(value, new Map()), handle });
+  assert.equal(secondRetry.status, "pending");
+  handle = secondRetry.status === "pending" ? secondRetry.handle : undefined;
+  assert.deepEqual(handle, { id: "task-retry", transportRetries: 2 });
+
+  const ready = await endpoint.poll({ ...context(value, new Map()), handle });
+  assert.equal(ready.status, "ready");
+  assert.equal(queries, 3);
+});
+
 test("preserves a failed task code and task id while redacting secrets and URLs", async () => {
   const fakeFetch: typeof globalThis.fetch = async (input) => {
     if (String(input).endsWith("/v2/video_generation")) {
